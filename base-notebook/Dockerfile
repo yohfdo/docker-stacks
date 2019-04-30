@@ -116,7 +116,7 @@ EXPOSE 8888
 WORKDIR $HOME
 
 # Configure container startup
-ENTRYPOINT ["tini", "-g", "--"]
+# ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
 # Add local files as late as possible to avoid cache busting
