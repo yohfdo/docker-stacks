@@ -5,10 +5,10 @@
 # https://github.com/docker-library/official-images/commit/aac6a45b9eb2bffb8102353c350d341a410fb169
 FROM ubuntu:bionic
 
-LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
-ARG NB_USER="jovyan"
+LABEL maintainer="Yohan Fernando"
+ARG NB_USER="yohan"
 ARG NB_UID="1000"
-ARG NB_GID="100"
+ARG NB_GID="1000"
 
 USER root
 
