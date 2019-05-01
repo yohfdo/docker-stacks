@@ -124,7 +124,10 @@ COPY start.sh /usr/local/bin/
 COPY start-notebook.sh /usr/local/bin/
 COPY start-singleuser.sh /usr/local/bin/
 COPY jupyter_notebook_config.py /etc/jupyter/
-RUN fix-permissions /etc/jupyter/
+# RUN fix-permissions /etc/jupyter/
+RUN  chown --changes --silent --no-dereference --recursive \
+   ${USER_ID}:${GROUP_ID} \
+   /etc/jupyter/
 
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID
