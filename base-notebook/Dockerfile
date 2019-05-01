@@ -80,9 +80,14 @@ RUN cd /tmp && \
     $CONDA_DIR/bin/conda update --all --quiet --yes && \
     conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
     conda clean -tipsy && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    rm -rf /home/$NB_USER/.cache/yarn 
+   #  fix-permissions $CONDA_DIR && \
+   #  fix-permissions /home/$NB_USER
+
+RUN chown --changes --silent --no-dereference --recursive \
+   ${USER_ID}:${GROUP_ID} \
+   $CONDA_DIR \
+   /home/$NB_USER
 
 # Install Tini
 # RUN conda install --quiet --yes 'tini=0.18.0' && \
