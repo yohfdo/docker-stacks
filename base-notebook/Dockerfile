@@ -6,9 +6,9 @@
 FROM ubuntu:bionic
 
 LABEL maintainer="Yohan Fernando"
-ARG NB_USER="yohan"
-ARG NB_UID="1000"
-ARG NB_GID="1000"
+ARG USER_NAME="yohan"
+ARG USER_ID="1000"
+ARG GRP_ID="1000"
 
 USER root
 
@@ -31,22 +31,22 @@ RUN echo "en_AU.UTF-8 UTF-8" > /etc/locale.gen && \
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
-   #  NB_USER=$NB_USER \
-   #  NB_UID=$NB_UID \
-   #  NB_GID=$NB_GID \
+   #  USER_NAME=$USER_NAME \
+   #  USER_ID=$USER_ID \
+   #  GRP_ID=$GRP_ID \
     LC_ALL=en_AU.UTF-8 \
     LANG=en_AU.UTF-8 \
     LANGUAGE=en_AU.UTF-8
 ENV PATH=$CONDA_DIR/bin:$PATH \
-    HOME=/home/$NB_USER
+    HOME=/home/$USER_NAME
 
 # Add a script that we will use to correct permissions after running certain commands
 ADD fix-permissions /usr/local/bin/fix-permissions
 
-# Enable prompt color in the skeleton .bashrc before creating the default NB_USER
+# Enable prompt color in the skeleton .bashrc before creating the default USER_NAME
 RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc
 
-# Create NB_USER wtih name jovyan user with UID=1000 and in the 'users' group
+# Create USER_NAME wtih name jovyan user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
 RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
@@ -59,15 +59,15 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
    #  fix-permissions "$(dirname $CONDA_DIR)"
 
 RUN chown --changes --silent --no-dereference --recursive \
-   ${USER_ID}:${GROUP_ID} \
+   ${USER_ID}:${GRP_ID} \
    $HOME \
    "$(dirname $CONDA_DIR)"
 
-USER $NB_UID
+USER $USER_ID
 
 # Setup work directory for backward-compatibility
-RUN mkdir /home/$NB_USER/work && \
-    fix-permissions /home/$NB_USER
+RUN mkdir /home/$USER_NAME/work 
+   #  fix-permissions /home/$USER_NAME
 
 # Install conda as jovyan and check the md5 sum provided on the download site
 ENV MINICONDA_VERSION=4.5.12 \
@@ -85,21 +85,21 @@ RUN cd /tmp && \
     $CONDA_DIR/bin/conda update --all --quiet --yes && \
     conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
     conda clean -tipsy && \
-    rm -rf /home/$NB_USER/.cache/yarn 
+    rm -rf /home/$USER_NAME/.cache/yarn 
    #  fix-permissions $CONDA_DIR && \
-   #  fix-permissions /home/$NB_USER
+   #  fix-permissions /home/$USER_NAME
 
 RUN chown --changes --silent --no-dereference --recursive \
-   ${USER_ID}:${GROUP_ID} \
+   ${USER_ID}:${GRP_ID} \
    $CONDA_DIR \
-   /home/$NB_USER
+   /home/$USER_NAME
 
 # Install Tini
 # RUN conda install --quiet --yes 'tini=0.18.0' && \
 #     conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
 #     conda clean -tipsy && \
 #     fix-permissions $CONDA_DIR && \
-#     fix-permissions /home/$NB_USER
+#     fix-permissions /home/$USER_NAME
 
 # Install Jupyter Notebook, Lab, and Hub
 # Generate a notebook server config
@@ -116,9 +116,9 @@ RUN chown --changes --silent --no-dereference --recursive \
 #     npm cache clean --force && \
 #     jupyter notebook --generate-config && \
 #     rm -rf $CONDA_DIR/share/jupyter/lab/staging && \
-#     rm -rf /home/$NB_USER/.cache/yarn && \
+#     rm -rf /home/$USER_NAME/.cache/yarn && \
 #     fix-permissions $CONDA_DIR && \
-#     fix-permissions /home/$NB_USER
+#     fix-permissions /home/$USER_NAME
 
 USER root
 
@@ -136,8 +136,8 @@ COPY start-singleuser.sh /usr/local/bin/
 COPY jupyter_notebook_config.py /etc/jupyter/
 # RUN fix-permissions /etc/jupyter/
 RUN  chown --changes --silent --no-dereference --recursive \
-   ${USER_ID}:${GROUP_ID} \
+   ${USER_ID}:${GRP_ID} \
    /etc/jupyter/
 
 # Switch back to jovyan to avoid accidental container runs as root
-USER $NB_UID
+USER $USER_ID
