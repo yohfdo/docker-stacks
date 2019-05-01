@@ -56,7 +56,12 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     chown $NB_USER:$NB_GID $CONDA_DIR && \
     chmod g+w /etc/passwd 
    #  fix-permissions $HOME && \
-    fix-permissions "$(dirname $CONDA_DIR)"
+   #  fix-permissions "$(dirname $CONDA_DIR)"
+
+RUN chown --changes --silent --no-dereference --recursive \
+   ${USER_ID}:${GROUP_ID} \
+   $HOME \
+   "$(dirname $CONDA_DIR)"
 
 USER $NB_UID
 
