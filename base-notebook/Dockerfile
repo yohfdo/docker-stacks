@@ -54,8 +54,8 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
     mkdir -p $CONDA_DIR && \
     chown $NB_USER:$NB_GID $CONDA_DIR && \
-    chmod g+w /etc/passwd && \
-    fix-permissions $HOME && \
+    chmod g+w /etc/passwd 
+   #  fix-permissions $HOME && \
     fix-permissions "$(dirname $CONDA_DIR)"
 
 USER $NB_UID
