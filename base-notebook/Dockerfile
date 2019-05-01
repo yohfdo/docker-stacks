@@ -48,15 +48,20 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 
 # Create USER_NAME wtih name jovyan user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
-RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
-    sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
-    sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
-    useradd -m -s /bin/bash -N -u $NB_UID $NB_USER && \
-    mkdir -p $CONDA_DIR && \
-    chown $NB_USER:$NB_GID $CONDA_DIR && \
-    chmod g+w /etc/passwd 
-   #  fix-permissions $HOME && \
-   #  fix-permissions "$(dirname $CONDA_DIR)"
+# RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
+#     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
+#     sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
+#     useradd -m -s /bin/bash -N -u $USER_ID $USER_NAME && \
+#     mkdir -p $CONDA_DIR && \
+#     chown $USER_NAME:$GRP_ID $CONDA_DIR && \
+#     chmod g+w /etc/passwd 
+#    #  fix-permissions $HOME && \
+#    #  fix-permissions "$(dirname $CONDA_DIR)"
+
+# Create new group, user with IDs required and create a home directory. 
+RUN groupadd -g ${GRP_ID} ${USER_NAME} &&\
+    useradd -l -u ${USER_ID} -g ${USER_NAME} ${USER_NAME} &&\
+    install -d -m 0755 -o ${USER_NAME} -g ${USER_NAME} /home/${USER_NAME}
 
 RUN chown --changes --silent --no-dereference --recursive \
    ${USER_ID}:${GRP_ID} \
